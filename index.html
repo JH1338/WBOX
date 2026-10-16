@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WBOX STUDIOS | 加乐游戏工作室</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: system-ui, sans-serif;
+        }
+        body {
+            background: #121214;
+            color: #fff;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 30px;
+        }
+        .splash {
+            text-align: center;
+            padding: 120px 20px;
+        }
+        .splash h1 {
+            font-size: 72px;
+            color: #58a6ff;
+        }
+        .splash h2 {
+            font-size: 28px;
+            margin-top:12px;
+            color:#cccccc;
+        }
+        .box {
+            background:#1e1e22;
+            border-radius:12px;
+            padding:24px;
+            margin:16px 0;
+        }
+        input {
+            width:100%;
+            padding:12px;
+            margin:8px 0;
+            border-radius:6px;
+            border:none;
+            font-size:16px;
+        }
+        button {
+            padding:12px 22px;
+            background:#2563eb;
+            color:white;
+            border:none;
+            border-radius:6px;
+            cursor:pointer;
+            font-size:16px;
+            margin:4px;
+        }
+        button:hover {
+            background:#1d4ed8;
+        }
+        .nav {
+            display:flex;
+            gap:12px;
+            margin-bottom:20px;
+        }
+        .page {
+            display:none;
+        }
+        .page.active {
+            display:block;
+        }
+        .game-item {
+            padding:16px;
+            background:#27272b;
+            border-radius:8px;
+            margin:10px 0;
+            cursor:pointer;
+        }
+        .game-item:hover {
+            background:#313138;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <!-- 启动页 -->
+    <div id="page_splash" class="page active">
+        <div class="splash">
+            <h1>WBOX</h1>
+            <h2>加乐游戏工作室</h2>
+            <br>
+            <button onclick="showPage('page_login')">进入</button>
+        </div>
+    </div>
+
+    <!-- 登录注册 -->
+    <div id="page_login" class="page">
+        <div class="box">
+            <h2>登录 / 注册</h2>
+            <input id="username" placeholder="用户名">
+            <input id="pwd" type="password" placeholder="密码">
+            <br>
+            <button onclick="loginOrRegister()">登录/注册</button>
+        </div>
+    </div>
+
+    <!-- 主页 -->
+    <div id="page_home" class="page">
+        <div class="nav">
+            <button onclick="showPage('page_home')">首页</button>
+            <button onclick="showPage('page_user')">用户</button>
+            <button onclick="showPage('page_announce')">公告</button>
+            <button onclick="showPage('page_about')">关于</button>
+        </div>
+        <h2>项目列表</h2>
+        <div class="game-item" onclick="openLink('mcwpe')">
+            <h3>Minecraft WPE</h3>
+            <p>点击进入</p>
+        </div>
+        <div class="game-item" onclick="openLink('mccceedu')">
+            <h3>Minecraft C++ Education</h3>
+            <p>点击进入</p>
+        </div>
+    </div>
+
+    <!-- 用户中心 -->
+    <div id="page_user" class="page">
+        <div class="nav">
+            <button onclick="showPage('page_home')">首页</button>
+            <button onclick="showPage('page_user')">用户</button>
+            <button onclick="showPage('page_announce')">公告</button>
+            <button onclick="showPage('page_about')">关于</button>
+        </div>
+        <div class="box">
+            <h2>用户中心</h2>
+            <p>用户名：<span id="showUser"></span></p>
+            <p>积分：<span id="showScore"></span></p>
+            <br>
+            <h4>已获取游戏</h4>
+            <div id="gameList"></div>
+            <br>
+            <input id="newName" placeholder="修改用户名">
+            <input id="newPwd" type="password" placeholder="修改密码">
+            <button onclick="updateUser()">保存修改</button>
+        </div>
+    </div>
+
+    <!-- 公告页 -->
+    <div id="page_announce" class="page">
+        <div class="nav">
+            <button onclick="showPage('page_home')">首页</button>
+            <button onclick="showPage('page_user')">用户</button>
+            <button onclick="showPage('page_announce')">公告</button>
+            <button onclick="showPage('page_about')">关于</button>
+        </div>
+        <div class="box">
+            <h2>公告</h2>
+            <p>在这里写开发更新通知。</p>
+        </div>
+    </div>
+
+    <!-- 关于页面 -->
+    <div id="page_about" class="page">
+        <div class="nav">
+            <button onclick="showPage('page_home')">首页</button>
+            <button onclick="showPage('page_user')">用户</button>
+            <button onclick="showPage('page_announce')">公告</button>
+            <button onclick="showPage('page_about')">关于</button>
+        </div>
+        <div class="box">
+            <h2>关于本站</h2>
+            <p>本网站由 WBOX 与加乐游戏工作室联合开发。</p>
+        </div>
+    </div>
+</div>
+
+<script>
+// =====================【预留接口，在这里填链接！！】=====================
+const siteConfig = {
+    mcwpe_url: "",      // Minecraft WPE跳转链接，后期你填
+    mccceedu_url: "https://ts.buzzheavier.com/d/rs6d9h9rpw09"    // Minecraft C++ Education跳转链接，后期你填
+};
+// ======================================================================
+
+let userData = null;
+
+// 页面切换
+function showPage(pageId) {
+    document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+    document.getElementById(pageId).classList.add('active');
+}
+
+// 打开项目链接，并且记录到本地已获取游戏
+function openLink(type) {
+    if(!userData) return alert("请先登录");
+    let url;
+    if(type === "mcwpe") url = siteConfig.mcwpe_url;
+    if(type === "mccceedu") url = siteConfig.mccceedu_url;
+
+    if(!url) return alert("链接暂未配置，请等待管理员设置");
+
+    window.open(url,"_blank");
+    // 记录这个游戏到本地json
+    if(!userData.ownedGames.includes(type)){
+        userData.ownedGames.push(type);
+        saveUser();
+    }
+}
+
+// 保存用户信息到本地 localStorage(json)
+function saveUser() {
+    localStorage.setItem("wbox_user", JSON.stringify(userData));
+    refreshUserUI();
+}
+
+// 加载本地用户
+function loadUser() {
+    const raw = localStorage.getItem("wbox_user");
+    if(raw) userData = JSON.parse(raw);
+}
+
+// 登录注册
+function loginOrRegister() {
+    const un = document.getElementById("username").value.trim();
+    const pw = document.getElementById("pwd").value.trim();
+    if(!un || !pw) return alert("用户名密码不能为空");
+
+    const old = localStorage.getItem("wbox_user");
+    if(!old) {
+        // 新注册
+        userData = {
+            username: un,
+            password: pw,
+            score: 0,
+            ownedGames: []
+        };
+        saveUser();
+    } else {
+        userData = JSON.parse(old);
+        if(userData.username !== un || userData.password !== pw) {
+            return alert("用户名或密码错误");
+        }
+    }
+    refreshUserUI();
+    showPage("page_home");
+}
+
+// 更新用户界面
+function refreshUserUI() {
+    if(!userData) return;
+    document.getElementById("showUser").innerText = userData.username;
+    document.getElementById("showScore").innerText = userData.score;
+    const listDom = document.getElementById("gameList");
+    listDom.innerHTML = "";
+    userData.ownedGames.forEach(g=>{
+        const div = document.createElement("div");
+        div.innerText = g;
+        listDom.appendChild(div);
+    })
+}
+
+// 修改用户名密码
+function updateUser() {
+    const newName = document.getElementById("newName").value.trim();
+    const newPwd = document.getElementById("newPwd").value.trim();
+    if(newName) userData.username = newName;
+    if(newPwd) userData.password = newPwd;
+    saveUser();
+    alert("已更新");
+}
+
+// 初始化
+loadUser();
+</script>
+</body>
+</html>
